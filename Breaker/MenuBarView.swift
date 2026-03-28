@@ -1,98 +1,102 @@
 import SwiftUI
+import ServiceManagement
 
 struct MenuBarView: View {
     @ObservedObject var timerManager: TimerManager
+    @AppStorage("workDurationMinutes") private var workDurationMinutes: Int = 20
+    @AppStorage("breakDurationSeconds") private var breakDurationSeconds: Int = 20
+    @AppStorage("smartPauseEnabled") private var smartPauseEnabled: Bool = true
 
     var body: some View {
-        VStack(spacing: 12) {
-            // Status
-            HStack {
-                Image(systemName: stateIcon)
-                    .foregroundColor(stateColor)
-                Text(stateLabel)
-                    .font(.headline)
-                Spacer()
+        // Status header
+        Text(timerManager.statusDescription)
+            .font(.headline)
+
+        if timerManager.smartPauseEnabled, let source = timerManager.meetingDetector.meetingSource {
+            Text(source)
+        }
+
+        Divider()
+
+        // Timer controls
+        if timerManager.state == .working {
+            Button("Pause Timer") {
+                timerManager.togglePause()
             }
-
-            // Countdown or status description
-            Text(timerManager.statusDescription)
-                .font(.system(.title2, design: .monospaced))
-                .frame(maxWidth: .infinity, alignment: .center)
-
-            Divider()
-
-            // Smart pause indicator
-            if timerManager.smartPauseEnabled && timerManager.meetingDetector.isInMeeting {
-                HStack {
-                    Circle()
-                        .fill(.red)
-                        .frame(width: 8, height: 8)
-                    Text(timerManager.meetingDetector.meetingSource ?? "Meeting detected")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                    Spacer()
-                }
+            .keyboardShortcut("p")
+        } else if timerManager.state == .paused {
+            Button("Resume Timer") {
+                timerManager.togglePause()
             }
+            .keyboardShortcut("p")
+            .disabled(timerManager.meetingDetector.isInMeeting)
+        }
 
-            // Controls
-            HStack {
-                Button(timerManager.state == .paused ? "Resume" : "Pause") {
-                    timerManager.togglePause()
-                }
-                .disabled(timerManager.state == .onBreak || timerManager.state == .idle ||
-                          (timerManager.state == .paused && timerManager.meetingDetector.isInMeeting))
+        Button("Restart Timer") {
+            timerManager.start()
+        }
+        .keyboardShortcut("r")
 
-                Button("Restart") {
-                    timerManager.start()
-                }
+        Divider()
 
-                Spacer()
-
-                if #available(macOS 14.0, *) {
-                    SettingsLink {
-                        Text("Settings")
-                    }
-                } else {
-                    Button("Settings") {
-                        NSApp.activate(ignoringOtherApps: true)
-                        NSApp.sendAction(Selector(("showSettingsWindow:")), to: nil, from: nil)
+        // Settings inline
+        Menu("Work Interval: \(workDurationMinutes) min") {
+            ForEach(workIntervalOptions, id: \.self) { minutes in
+                Button {
+                    workDurationMinutes = minutes
+                } label: {
+                    if minutes == workDurationMinutes {
+                        Text("\(minutes) minutes")
+                    } else {
+                        Text("\(minutes) minutes")
                     }
                 }
             }
+        }
 
-            Divider()
-
-            Button("Quit Breaker") {
-                NSApplication.shared.terminate(nil)
+        Menu("Break Duration: \(breakDurationSeconds) sec") {
+            ForEach(breakDurationOptions, id: \.self) { seconds in
+                Button {
+                    breakDurationSeconds = seconds
+                } label: {
+                    Text(formatBreakDuration(seconds))
+                }
             }
         }
-        .padding()
-    }
 
-    private var stateIcon: String {
-        switch timerManager.state {
-        case .idle: return "eye"
-        case .working: return "timer"
-        case .onBreak: return "eye.trianglebadge.exclamationmark"
-        case .paused: return "pause.circle"
+        Divider()
+
+        Toggle("Smart Pause", isOn: $smartPauseEnabled)
+
+        Toggle("Launch at Login", isOn: Binding(
+            get: { SMAppService.mainApp.status == .enabled },
+            set: { newValue in
+                try? newValue ? SMAppService.mainApp.register() : SMAppService.mainApp.unregister()
+            }
+        ))
+
+        Divider()
+
+        Button("Quit Breaker") {
+            NSApplication.shared.terminate(nil)
         }
+        .keyboardShortcut("q")
     }
 
-    private var stateColor: Color {
-        switch timerManager.state {
-        case .idle: return .secondary
-        case .working: return .green
-        case .onBreak: return .orange
-        case .paused: return .yellow
-        }
+    private var workIntervalOptions: [Int] {
+        [5, 10, 15, 20, 30, 45, 60]
     }
 
-    private var stateLabel: String {
-        switch timerManager.state {
-        case .idle: return "Ready"
-        case .working: return "Working"
-        case .onBreak: return "Break Time"
-        case .paused: return "Paused"
+    private var breakDurationOptions: [Int] {
+        [10, 20, 30, 60, 120, 300]
+    }
+
+    private func formatBreakDuration(_ seconds: Int) -> String {
+        if seconds < 60 {
+            return "\(seconds) seconds"
+        } else {
+            let minutes = seconds / 60
+            return "\(minutes) minute\(minutes > 1 ? "s" : "")"
         }
     }
 }

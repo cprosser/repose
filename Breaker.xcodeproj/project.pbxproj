@@ -11,7 +11,6 @@
 		1CA3AD103B30FC00F73BCD16 /* BreakerApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE9F4976E774F1AB0AD99BD3 /* BreakerApp.swift */; };
 		38B6AFA37862959BFB3D2651 /* BreakOverlayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7E65C03FD02C95E94E37B03 /* BreakOverlayView.swift */; };
 		43C0E8D5467AC82EAF78BC51 /* MeetingDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = A65C9A327529DC1605E7B7EE /* MeetingDetector.swift */; };
-		4CA0CB3DEADEEF67944A351D /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1689D30BD382E17E58D5A3F4 /* SettingsView.swift */; };
 		5A8C786D1ED3751E38E587A0 /* OverlayManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F311CF6F6A0A9BB6B0235AD /* OverlayManager.swift */; };
 		C4AD3F742A28B1BB2EDEEB01 /* MenuBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2C4D287507D0E071A66381B /* MenuBarView.swift */; };
 		DAAE4FF500E045206D0C1AB6 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4B02DA5537579EC298690B68 /* Assets.xcassets */; };
@@ -20,7 +19,6 @@
 /* Begin PBXFileReference section */
 		0DD09CB77633BE66F1C53774 /* Breaker.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Breaker.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		103A58AAF658C9136D2D5C18 /* Breaker.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Breaker.entitlements; sourceTree = "<group>"; };
-		1689D30BD382E17E58D5A3F4 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		4B02DA5537579EC298690B68 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		9F311CF6F6A0A9BB6B0235AD /* OverlayManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverlayManager.swift; sourceTree = "<group>"; };
 		A65C9A327529DC1605E7B7EE /* MeetingDetector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeetingDetector.swift; sourceTree = "<group>"; };
@@ -59,7 +57,6 @@
 				A65C9A327529DC1605E7B7EE /* MeetingDetector.swift */,
 				D2C4D287507D0E071A66381B /* MenuBarView.swift */,
 				9F311CF6F6A0A9BB6B0235AD /* OverlayManager.swift */,
-				1689D30BD382E17E58D5A3F4 /* SettingsView.swift */,
 				EA305205DE1DAC4D48F7AF61 /* TimerManager.swift */,
 			);
 			path = Breaker;
@@ -140,7 +137,6 @@
 				43C0E8D5467AC82EAF78BC51 /* MeetingDetector.swift in Sources */,
 				C4AD3F742A28B1BB2EDEEB01 /* MenuBarView.swift in Sources */,
 				5A8C786D1ED3751E38E587A0 /* OverlayManager.swift in Sources */,
-				4CA0CB3DEADEEF67944A351D /* SettingsView.swift in Sources */,
 				11C9E072C99768F0207BAFE9 /* TimerManager.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
