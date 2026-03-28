@@ -216,6 +216,9 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
 
     @objc private func setWorkInterval(_ sender: NSMenuItem) {
         UserDefaults.standard.set(sender.tag, forKey: "workDurationMinutes")
+        if timerManager.state == .working {
+            timerManager.start()
+        }
     }
 
     @objc private func setBreakDuration(_ sender: NSMenuItem) {
