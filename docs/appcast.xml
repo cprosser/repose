@@ -8,7 +8,7 @@
             <sparkle:version>1</sparkle:version>
             <sparkle:shortVersionString>1.0.0</sparkle:shortVersionString>
             <sparkle:minimumSystemVersion>13.0</sparkle:minimumSystemVersion>
-            <enclosure url="https://github.com/fikrikarim/repose/releases/download/vCURRENT_PROJECT_VERSION:1/Repose.zip" length="1310054" type="application/octet-stream" sparkle:edSignature="DrW3ijGNer6GdeEOAsZ4meM1zdw2huXJiWsi2qqDtjtC2rU7t8lh1Dx5EpfC/UH16NSiG6wi6f04lxllXtJVAg=="/>
+            <enclosure url="https://github.com/fikrikarim/repose/releases/download/v1.0.0/Repose.zip" length="1310054" type="application/octet-stream" sparkle:edSignature="DrW3ijGNer6GdeEOAsZ4meM1zdw2huXJiWsi2qqDtjtC2rU7t8lh1Dx5EpfC/UH16NSiG6wi6f04lxllXtJVAg=="/>
         </item>
     </channel>
 </rss>

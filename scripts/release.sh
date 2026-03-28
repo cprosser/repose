@@ -23,7 +23,7 @@ DMG_PATH="$BUILD_DIR/$APP_NAME.dmg"
 ZIP_PATH="$BUILD_DIR/$APP_NAME.zip"
 APPCAST_DIR="$ROOT_DIR/docs"
 
-VERSION=$(defaults read "$ROOT_DIR/Repose/Info.plist" CFBundleShortVersionString 2>/dev/null || echo "1.0.0")
+VERSION=$(grep 'MARKETING_VERSION' "$ROOT_DIR/project.yml" | head -1 | sed 's/.*: *"\(.*\)"/\1/')
 
 echo "==> Building $APP_NAME v$VERSION"
 echo ""

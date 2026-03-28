@@ -107,6 +107,7 @@
 				LastUpgradeCheck = 1500;
 				TargetAttributes = {
 					11248A9FC01F30B19CC82757 = {
+						DevelopmentTeam = FBS8R927D4;
 						ProvisioningStyle = Automatic;
 					};
 				};
@@ -288,6 +289,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = FBS8R927D4;
 				ENABLE_HARDENED_RUNTIME = YES;
 				INFOPLIST_FILE = Repose/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -310,6 +312,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = FBS8R927D4;
 				ENABLE_HARDENED_RUNTIME = YES;
 				INFOPLIST_FILE = Repose/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
