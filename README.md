@@ -1,4 +1,4 @@
-<img src="assets/icon.png" width="148" alt="Repose icon" align="left"/>
+<img src="assets/icon.png" width="180" height="180" alt="Repose icon" align="left"/>
 
 <div>
 <h3>Repose</h3>
