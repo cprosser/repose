@@ -5,65 +5,102 @@ struct BreakOverlayView: View {
     let isPrimary: Bool
     @AppStorage("allowSkipBreak") private var allowSkipBreak: Bool = true
     @State private var breathe = false
+    @State private var appeared = false
+    @State private var ringProgress: CGFloat = 0
 
     var body: some View {
         ZStack {
-            // Gradient background
-            LinearGradient(
-                colors: [
-                    Color(red: 0.05, green: 0.05, blue: 0.15).opacity(0.85),
-                    Color(red: 0.1, green: 0.08, blue: 0.2).opacity(0.85),
-                    Color(red: 0.05, green: 0.05, blue: 0.12).opacity(0.85),
-                ],
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-            )
-            .ignoresSafeArea()
+            // Blurred dark background — semi-transparent
+            Color.black.opacity(0.75)
+                .ignoresSafeArea()
+                .background(.ultraThinMaterial)
 
             if isPrimary {
-                VStack(spacing: 32) {
+                // Ambient glow behind the content
+                Circle()
+                    .fill(
+                        RadialGradient(
+                            colors: [
+                                Color(red: 0.3, green: 0.4, blue: 0.9).opacity(0.15),
+                                Color.clear,
+                            ],
+                            center: .center,
+                            startRadius: 40,
+                            endRadius: 350
+                        )
+                    )
+                    .frame(width: 700, height: 700)
+                    .scaleEffect(breathe ? 1.1 : 0.9)
+                    .blur(radius: 60)
+
+                VStack(spacing: 40) {
                     Spacer()
 
-                    // Breathing circle animation
+                    // Progress ring with breathing animation
                     ZStack {
+                        // Outer breathing ring
                         Circle()
-                            .fill(.white.opacity(0.05))
-                            .frame(width: 160, height: 160)
-                            .scaleEffect(breathe ? 1.15 : 0.9)
+                            .stroke(.white.opacity(0.06), lineWidth: 2)
+                            .frame(width: 180, height: 180)
+                            .scaleEffect(breathe ? 1.12 : 0.92)
 
+                        // Progress ring
                         Circle()
-                            .fill(.white.opacity(0.08))
-                            .frame(width: 120, height: 120)
-                            .scaleEffect(breathe ? 1.1 : 0.95)
+                            .trim(from: 0, to: ringProgress)
+                            .stroke(
+                                AngularGradient(
+                                    colors: [
+                                        Color(red: 0.4, green: 0.5, blue: 1.0).opacity(0.8),
+                                        Color(red: 0.6, green: 0.4, blue: 1.0).opacity(0.6),
+                                        Color(red: 0.4, green: 0.5, blue: 1.0).opacity(0.3),
+                                    ],
+                                    center: .center
+                                ),
+                                style: StrokeStyle(lineWidth: 3, lineCap: .round)
+                            )
+                            .frame(width: 150, height: 150)
+                            .rotationEffect(.degrees(-90))
+
+                        // Inner circle
+                        Circle()
+                            .fill(.white.opacity(0.04))
+                            .frame(width: 130, height: 130)
+                            .scaleEffect(breathe ? 1.05 : 0.97)
+
+                        // Timer inside the ring
+                        Text(formatTime(timerManager.remainingSeconds))
+                            .font(.system(size: 38, weight: .light, design: .monospaced))
+                            .foregroundStyle(.white.opacity(0.9))
+                            .contentTransition(.numericText())
                     }
 
-                    VStack(spacing: 12) {
+                    VStack(spacing: 10) {
                         Text("Take a Break")
-                            .font(.system(size: 42, weight: .medium, design: .rounded))
+                            .font(.system(size: 38, weight: .medium, design: .rounded))
                             .foregroundStyle(.white)
+                            .opacity(appeared ? 1 : 0)
+                            .offset(y: appeared ? 0 : 10)
 
-                        Text("Rest your eyes and look at something far away")
-                            .font(.system(size: 18, weight: .regular))
-                            .foregroundStyle(.white.opacity(0.5))
+                        Text("Look away from the screen and rest your eyes")
+                            .font(.system(size: 16, weight: .regular))
+                            .foregroundStyle(.white.opacity(0.4))
+                            .opacity(appeared ? 1 : 0)
+                            .offset(y: appeared ? 0 : 8)
                     }
 
-                    // Countdown
-                    Text(formatTime(timerManager.remainingSeconds))
-                        .font(.system(size: 80, weight: .ultraLight, design: .monospaced))
-                        .foregroundStyle(.white.opacity(0.9))
-                        .contentTransition(.numericText())
-
-                    // Skip button (only if allowed)
+                    // Skip button
                     if allowSkipBreak {
                         Button(action: { timerManager.skipBreak() }) {
                             Text("Skip")
-                                .font(.system(size: 15, weight: .medium))
-                                .foregroundStyle(.white.opacity(0.6))
-                                .padding(.horizontal, 28)
-                                .padding(.vertical, 10)
-                                .background(.white.opacity(0.1), in: Capsule())
+                                .font(.system(size: 14, weight: .medium))
+                                .foregroundStyle(.white.opacity(0.5))
+                                .padding(.horizontal, 24)
+                                .padding(.vertical, 8)
+                                .background(.white.opacity(0.08), in: Capsule())
+                                .overlay(Capsule().stroke(.white.opacity(0.1), lineWidth: 0.5))
                         }
                         .buttonStyle(.plain)
+                        .opacity(appeared ? 1 : 0)
                         .onHover { hovering in
                             if hovering {
                                 NSCursor.pointingHand.push()
@@ -81,6 +118,22 @@ struct BreakOverlayView: View {
             withAnimation(.easeInOut(duration: 4).repeatForever(autoreverses: true)) {
                 breathe = true
             }
+            withAnimation(.easeOut(duration: 0.8)) {
+                appeared = true
+            }
+            updateRingProgress()
+        }
+        .onChange(of: timerManager.remainingSeconds) { _ in
+            updateRingProgress()
+        }
+    }
+
+    private func updateRingProgress() {
+        let total = CGFloat(timerManager.breakDurationSeconds)
+        let remaining = CGFloat(timerManager.remainingSeconds)
+        let progress = total > 0 ? (total - remaining) / total : 0
+        withAnimation(.linear(duration: 1)) {
+            ringProgress = progress
         }
     }
 
