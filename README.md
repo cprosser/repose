@@ -1,7 +1,7 @@
 <img src="assets/icon.png" width="148" alt="Repose icon" align="left"/>
 
 <div>
-<h1>Repose</h1>
+<h3>Repose</h3>
 <p>Break reminder for macOS that lives in your menu bar.</p>
 <a href="https://github.com/fikrikarim/repose/releases/latest">
   <img src="assets/download-button.svg" alt="Download for Mac">
