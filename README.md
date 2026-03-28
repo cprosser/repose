@@ -1,47 +1,55 @@
-<img src="assets/icon.png" width="180" height="180" alt="Repose icon" align="left"/>
-
-<div>
-<h3>Repose</h3>
-<p>Break reminder for macOS that lives in your menu bar.</p>
-<a href="https://github.com/fikrikarim/repose/releases/latest">
-  <img src="assets/download-button.svg" alt="Download for Mac">
-</a>
+<div align="center">
+  <img src="assets/icon.png" width="128" height="128" alt="Repose icon"/>
+  <h1>Repose</h1>
+  <p><strong>Take breaks from your screen. Without interrupting your meetings.</strong></p>
+  <a href="https://github.com/fikrikarim/repose/releases/latest">
+    <img src="assets/download-button.svg" alt="Download for Mac">
+  </a>
+  <p><sub>Free and open source. Requires macOS 13+.</sub></p>
 </div>
 
-<br clear="all"/>
+<br/>
 
-<a href="https://github.com/fikrikarim/repose/releases/latest">
-  <p><img src="assets/break-overlay.png" alt="Repose break screen"></p>
-  <p><img src="assets/menu.png" alt="Repose menu"></p>
-</a>
+<div align="center">
+  <img src="assets/break-overlay.png" alt="Repose break screen" width="720"/>
+</div>
 
-You set a work interval and a break duration. Repose counts down in the menu bar, and when it hits zero, your screen goes dark and tells you to look away. When the break's over, the cycle starts again.
+<br/>
 
-The thing that makes it actually usable: it won't interrupt you during calls. Repose watches whether your camera or mic is active, and pauses itself until you're done. No calendar setup, nothing to configure. If you're on a Zoom call, it knows.
+Repose lives in your menu bar, counts down your work interval, and dims your screen when it's time to rest your eyes. When the break ends, the cycle starts again.
 
-## What's in the menu
+The difference from every other break reminder: **Repose detects when you're in a meeting and stays out of your way.** No calendar integration, no app-specific setup. If your camera or mic is active, it knows you're on a call and waits.
 
-Click the timer in the menu bar and you get:
+## How it works
 
-- Pause, resume, restart
-- Work interval picker (1 min to 60 min)
-- Break duration picker (10 sec to 5 min)
-- Toggle for meeting detection
-- Toggle for whether breaks are skippable
-- Launch at login
-- Check for updates
+1. Set your work interval (1–60 min) and break duration (10 sec–5 min)
+2. A countdown appears in your menu bar
+3. When time's up, your screen dims with a gentle reminder to look away
+4. If you're on a call, the timer pauses automatically until you're done
 
-Everything is right there, no settings window.
+<div align="center">
+  <img src="assets/menu.png" alt="Repose menu" width="280"/>
+</div>
 
-## How the meeting detection actually works
+Everything is in the menu — pause, resume, restart, all settings. No separate preferences window.
 
-Most apps do this by checking your calendar or looking at what apps are running. Both are kind of bad. Your calendar doesn't know about the impromptu call your manager just pulled you into, and "Zoom is open" doesn't mean you're in a meeting.
+## Why the meeting detection actually works
 
-Repose asks the hardware instead. It uses CoreMediaIO to check if any camera is active, and CoreAudio for the microphone. If something is using your camera or mic right now, you're probably in a call, so it backs off. When the device goes idle, the timer picks back up.
+Most break apps check your calendar or look for specific apps running. Both break easily — your calendar doesn't know about the impromptu call your manager just started, and "Zoom is open" doesn't mean you're in a meeting.
 
-This means it works with everything. Zoom, Meet, FaceTime, Teams, Slack huddles, whatever you end up using next year. No need to know about any of them.
+Repose checks the hardware directly. It uses CoreMediaIO to detect active cameras and CoreAudio for microphones. If something is using your camera or mic right now, you're probably in a call, so it backs off.
 
-## Build from source
+This means it works with Zoom, Meet, FaceTime, Teams, Slack huddles, and whatever you end up using next year. Zero configuration.
+
+## Install
+
+### Download
+
+Grab the latest release from the [releases page](https://github.com/fikrikarim/repose/releases/latest). Unzip and drag to Applications.
+
+Updates are handled automatically via Sparkle.
+
+### Build from source
 
 ```
 git clone https://github.com/fikrikarim/repose.git
@@ -51,7 +59,7 @@ xcodegen generate
 open Repose.xcodeproj
 ```
 
-Needs Xcode 15+ and macOS 13+.
+Requires Xcode 15+ and macOS 13+.
 
 ## License
 
