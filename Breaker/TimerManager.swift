@@ -85,6 +85,7 @@ class TimerManager: ObservableObject {
             "workDurationMinutes": 20,
             "breakDurationSeconds": 20,
             "smartPauseEnabled": true,
+            "allowSkipBreak": true,
         ])
         // Start timer immediately on launch
         start()

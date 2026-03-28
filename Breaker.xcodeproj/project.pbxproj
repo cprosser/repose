@@ -12,7 +12,7 @@
 		38B6AFA37862959BFB3D2651 /* BreakOverlayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7E65C03FD02C95E94E37B03 /* BreakOverlayView.swift */; };
 		43C0E8D5467AC82EAF78BC51 /* MeetingDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = A65C9A327529DC1605E7B7EE /* MeetingDetector.swift */; };
 		5A8C786D1ED3751E38E587A0 /* OverlayManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F311CF6F6A0A9BB6B0235AD /* OverlayManager.swift */; };
-		C4AD3F742A28B1BB2EDEEB01 /* MenuBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2C4D287507D0E071A66381B /* MenuBarView.swift */; };
+		B9A61ECCF2E150D838B3F8A5 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F298309F24D2EAFB3456AD72 /* AppDelegate.swift */; };
 		DAAE4FF500E045206D0C1AB6 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4B02DA5537579EC298690B68 /* Assets.xcassets */; };
 /* End PBXBuildFile section */
 
@@ -23,9 +23,9 @@
 		9F311CF6F6A0A9BB6B0235AD /* OverlayManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverlayManager.swift; sourceTree = "<group>"; };
 		A65C9A327529DC1605E7B7EE /* MeetingDetector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeetingDetector.swift; sourceTree = "<group>"; };
 		C7E65C03FD02C95E94E37B03 /* BreakOverlayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BreakOverlayView.swift; sourceTree = "<group>"; };
-		D2C4D287507D0E071A66381B /* MenuBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarView.swift; sourceTree = "<group>"; };
 		EA305205DE1DAC4D48F7AF61 /* TimerManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimerManager.swift; sourceTree = "<group>"; };
 		EE9F4976E774F1AB0AD99BD3 /* BreakerApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BreakerApp.swift; sourceTree = "<group>"; };
+		F298309F24D2EAFB3456AD72 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		FBB0CB3789D5CFB16E519576 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -49,13 +49,13 @@
 		373012003E5D72A667255447 /* Breaker */ = {
 			isa = PBXGroup;
 			children = (
+				F298309F24D2EAFB3456AD72 /* AppDelegate.swift */,
 				4B02DA5537579EC298690B68 /* Assets.xcassets */,
 				103A58AAF658C9136D2D5C18 /* Breaker.entitlements */,
 				EE9F4976E774F1AB0AD99BD3 /* BreakerApp.swift */,
 				C7E65C03FD02C95E94E37B03 /* BreakOverlayView.swift */,
 				FBB0CB3789D5CFB16E519576 /* Info.plist */,
 				A65C9A327529DC1605E7B7EE /* MeetingDetector.swift */,
-				D2C4D287507D0E071A66381B /* MenuBarView.swift */,
 				9F311CF6F6A0A9BB6B0235AD /* OverlayManager.swift */,
 				EA305205DE1DAC4D48F7AF61 /* TimerManager.swift */,
 			);
@@ -132,10 +132,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B9A61ECCF2E150D838B3F8A5 /* AppDelegate.swift in Sources */,
 				38B6AFA37862959BFB3D2651 /* BreakOverlayView.swift in Sources */,
 				1CA3AD103B30FC00F73BCD16 /* BreakerApp.swift in Sources */,
 				43C0E8D5467AC82EAF78BC51 /* MeetingDetector.swift in Sources */,
-				C4AD3F742A28B1BB2EDEEB01 /* MenuBarView.swift in Sources */,
 				5A8C786D1ED3751E38E587A0 /* OverlayManager.swift in Sources */,
 				11C9E072C99768F0207BAFE9 /* TimerManager.swift in Sources */,
 			);

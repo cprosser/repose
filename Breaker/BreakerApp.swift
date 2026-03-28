@@ -2,17 +2,13 @@ import SwiftUI
 
 @main
 struct BreakerApp: App {
-    @StateObject private var timerManager = TimerManager()
+    @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
 
     var body: some Scene {
-        MenuBarExtra {
-            MenuBarView(timerManager: timerManager)
-        } label: {
-            HStack(spacing: 4) {
-                Image(systemName: timerManager.menuBarIcon)
-                Text(timerManager.menuBarText)
-            }
+        // No visible windows — the app lives entirely in the menu bar.
+        // Settings scene is required but unused (settings are in the menu).
+        Settings {
+            EmptyView()
         }
-        .menuBarExtraStyle(.menu)
     }
 }

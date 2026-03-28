@@ -3,6 +3,7 @@ import SwiftUI
 struct BreakOverlayView: View {
     @ObservedObject var timerManager: TimerManager
     let isPrimary: Bool
+    @AppStorage("allowSkipBreak") private var allowSkipBreak: Bool = true
     @State private var breathe = false
 
     var body: some View {
@@ -34,10 +35,6 @@ struct BreakOverlayView: View {
                             .fill(.white.opacity(0.08))
                             .frame(width: 120, height: 120)
                             .scaleEffect(breathe ? 1.1 : 0.95)
-
-                        Image(systemName: "eye")
-                            .font(.system(size: 48, weight: .thin))
-                            .foregroundStyle(.white.opacity(0.9))
                     }
 
                     VStack(spacing: 12) {
@@ -56,21 +53,23 @@ struct BreakOverlayView: View {
                         .foregroundStyle(.white.opacity(0.9))
                         .contentTransition(.numericText())
 
-                    // Skip button
-                    Button(action: { timerManager.skipBreak() }) {
-                        Text("Skip")
-                            .font(.system(size: 15, weight: .medium))
-                            .foregroundStyle(.white.opacity(0.6))
-                            .padding(.horizontal, 28)
-                            .padding(.vertical, 10)
-                            .background(.white.opacity(0.1), in: Capsule())
-                    }
-                    .buttonStyle(.plain)
-                    .onHover { hovering in
-                        if hovering {
-                            NSCursor.pointingHand.push()
-                        } else {
-                            NSCursor.pop()
+                    // Skip button (only if allowed)
+                    if allowSkipBreak {
+                        Button(action: { timerManager.skipBreak() }) {
+                            Text("Skip")
+                                .font(.system(size: 15, weight: .medium))
+                                .foregroundStyle(.white.opacity(0.6))
+                                .padding(.horizontal, 28)
+                                .padding(.vertical, 10)
+                                .background(.white.opacity(0.1), in: Capsule())
+                        }
+                        .buttonStyle(.plain)
+                        .onHover { hovering in
+                            if hovering {
+                                NSCursor.pointingHand.push()
+                            } else {
+                                NSCursor.pop()
+                            }
                         }
                     }
 
