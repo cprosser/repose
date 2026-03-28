@@ -1,5 +1,4 @@
 import AppKit
-import Combine
 import ServiceManagement
 import SwiftUI
 
@@ -7,7 +6,8 @@ import SwiftUI
 class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     private var statusItem: NSStatusItem!
     private var timerManager: TimerManager!
-    private var cancellables = Set<AnyCancellable>()
+    private var statusBarTimer: Timer?
+    private var menuIsOpen = false
 
     // Menu items that need updating
     private var statusMenuItem: NSMenuItem!
@@ -29,7 +29,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         statusItem.button?.imagePosition = .imageLeading
 
         buildMenu()
-        observeTimer()
+        startStatusBarTimer()
     }
 
     // MARK: - Menu Construction
@@ -83,7 +83,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         menu.addItem(.separator())
 
         // Toggles
-        smartPauseMenuItem = NSMenuItem(title: "Smart Pause", action: #selector(toggleSmartPause), keyEquivalent: "")
+        smartPauseMenuItem = NSMenuItem(title: "Pause During Meetings", action: #selector(toggleSmartPause), keyEquivalent: "")
         smartPauseMenuItem.target = self
         menu.addItem(smartPauseMenuItem)
 
@@ -108,12 +108,18 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
 
     nonisolated func menuWillOpen(_ menu: NSMenu) {
         MainActor.assumeIsolated {
+            menuIsOpen = true
             updateMenuItems()
         }
     }
 
-    private func updateMenuItems() {
-        // Status text
+    nonisolated func menuDidClose(_ menu: NSMenu) {
+        MainActor.assumeIsolated {
+            menuIsOpen = false
+        }
+    }
+
+    private func updateStatusText() {
         switch timerManager.state {
         case .idle:
             statusMenuItem.title = "Breaker"
@@ -128,6 +134,10 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
                 statusMenuItem.title = "Paused"
             }
         }
+    }
+
+    private func updateMenuItems() {
+        updateStatusText()
 
         // Pause / Resume
         switch timerManager.state {
@@ -161,18 +171,23 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         launchAtLoginMenuItem.state = SMAppService.mainApp.status == .enabled ? .on : .off
     }
 
-    // MARK: - Observe timer for status bar title updates only
+    // MARK: - Status bar title updates
 
-    private func observeTimer() {
-        timerManager.objectWillChange
-            .receive(on: RunLoop.main)
-            .sink { [weak self] _ in
-                self?.updateStatusBarTitle()
-            }
-            .store(in: &cancellables)
-
-        // Initial update
+    private func startStatusBarTimer() {
         updateStatusBarTitle()
+        let timer = Timer(timeInterval: 1, repeats: true) { [weak self] _ in
+            MainActor.assumeIsolated {
+                guard let self else { return }
+                self.updateStatusBarTitle()
+                if self.menuIsOpen {
+                    self.updateStatusText()
+                }
+            }
+        }
+        // .common includes both default and eventTracking modes,
+        // so updates work even while the menu is open.
+        RunLoop.main.add(timer, forMode: .common)
+        statusBarTimer = timer
     }
 
     private func updateStatusBarTitle() {
