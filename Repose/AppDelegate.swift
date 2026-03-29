@@ -95,22 +95,22 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         // Toggles
         pauseDuringMeetingsMenuItem = NSMenuItem(title: "Pause During Meetings", action: #selector(toggleBoolSetting(_:)), keyEquivalent: "")
         pauseDuringMeetingsMenuItem.target = self
-        pauseDuringMeetingsMenuItem.representedObject = "pauseDuringMeetings"
+        pauseDuringMeetingsMenuItem.representedObject = SettingsKey.pauseDuringMeetings
         menu.addItem(pauseDuringMeetingsMenuItem)
 
         pauseWhenIdleMenuItem = NSMenuItem(title: "Pause When Idle", action: #selector(toggleBoolSetting(_:)), keyEquivalent: "")
         pauseWhenIdleMenuItem.target = self
-        pauseWhenIdleMenuItem.representedObject = "pauseWhenIdle"
+        pauseWhenIdleMenuItem.representedObject = SettingsKey.pauseWhenIdle
         menu.addItem(pauseWhenIdleMenuItem)
 
         allowSkipMenuItem = NSMenuItem(title: "Allow Skip Break", action: #selector(toggleBoolSetting(_:)), keyEquivalent: "")
         allowSkipMenuItem.target = self
-        allowSkipMenuItem.representedObject = "allowSkipBreak"
+        allowSkipMenuItem.representedObject = SettingsKey.allowSkipBreak
         menu.addItem(allowSkipMenuItem)
 
         muteSoundsMenuItem = NSMenuItem(title: "Mute Sounds", action: #selector(toggleBoolSetting(_:)), keyEquivalent: "")
         muteSoundsMenuItem.target = self
-        muteSoundsMenuItem.representedObject = "muteSounds"
+        muteSoundsMenuItem.representedObject = SettingsKey.muteSounds
         menu.addItem(muteSoundsMenuItem)
 
         menu.addItem(.separator())
@@ -182,22 +182,22 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         }
 
         // Work interval checkmarks
-        let currentWork = UserDefaults.standard.integer(forKey: "workDurationMinutes")
+        let currentWork = UserDefaults.standard.integer(forKey: SettingsKey.workDurationMinutes)
         for item in workIntervalMenu.items {
             item.state = item.tag == currentWork ? .on : .off
         }
 
         // Break duration checkmarks
-        let currentBreak = UserDefaults.standard.integer(forKey: "breakDurationSeconds")
+        let currentBreak = UserDefaults.standard.integer(forKey: SettingsKey.breakDurationSeconds)
         for item in breakDurationMenu.items {
             item.state = item.tag == currentBreak ? .on : .off
         }
 
         // Toggle states
-        pauseDuringMeetingsMenuItem.state = UserDefaults.standard.bool(forKey: "pauseDuringMeetings") ? .on : .off
-        pauseWhenIdleMenuItem.state = UserDefaults.standard.bool(forKey: "pauseWhenIdle") ? .on : .off
-        allowSkipMenuItem.state = UserDefaults.standard.bool(forKey: "allowSkipBreak") ? .on : .off
-        muteSoundsMenuItem.state = UserDefaults.standard.bool(forKey: "muteSounds") ? .on : .off
+        pauseDuringMeetingsMenuItem.state = UserDefaults.standard.bool(forKey: SettingsKey.pauseDuringMeetings) ? .on : .off
+        pauseWhenIdleMenuItem.state = UserDefaults.standard.bool(forKey: SettingsKey.pauseWhenIdle) ? .on : .off
+        allowSkipMenuItem.state = UserDefaults.standard.bool(forKey: SettingsKey.allowSkipBreak) ? .on : .off
+        muteSoundsMenuItem.state = UserDefaults.standard.bool(forKey: SettingsKey.muteSounds) ? .on : .off
         launchAtLoginMenuItem.state = SMAppService.mainApp.status == .enabled ? .on : .off
     }
 
@@ -248,14 +248,14 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     }
 
     @objc private func setWorkInterval(_ sender: NSMenuItem) {
-        UserDefaults.standard.set(sender.tag, forKey: "workDurationMinutes")
+        UserDefaults.standard.set(sender.tag, forKey: SettingsKey.workDurationMinutes)
         if timerManager.state == .working {
             timerManager.start()
         }
     }
 
     @objc private func setBreakDuration(_ sender: NSMenuItem) {
-        UserDefaults.standard.set(sender.tag, forKey: "breakDurationSeconds")
+        UserDefaults.standard.set(sender.tag, forKey: SettingsKey.breakDurationSeconds)
     }
 
     @objc private func toggleBoolSetting(_ sender: NSMenuItem) {

@@ -16,6 +16,15 @@ enum PauseReason {
     case idle
 }
 
+enum SettingsKey {
+    static let workDurationMinutes = "workDurationMinutes"
+    static let breakDurationSeconds = "breakDurationSeconds"
+    static let pauseDuringMeetings = "pauseDuringMeetings"
+    static let allowSkipBreak = "allowSkipBreak"
+    static let muteSounds = "muteSounds"
+    static let pauseWhenIdle = "pauseWhenIdle"
+}
+
 @MainActor
 class TimerManager: ObservableObject {
     @Published var state: TimerState = .working
@@ -33,24 +42,24 @@ class TimerManager: ObservableObject {
     private var activity: NSObjectProtocol?
 
     var workDurationSeconds: Int {
-        UserDefaults.standard.integer(forKey: "workDurationMinutes").clamped(to: 1...120) * 60
+        UserDefaults.standard.integer(forKey: SettingsKey.workDurationMinutes).clamped(to: 1...120) * 60
     }
 
     var breakDurationSeconds: Int {
-        let val = UserDefaults.standard.integer(forKey: "breakDurationSeconds")
+        let val = UserDefaults.standard.integer(forKey: SettingsKey.breakDurationSeconds)
         return val.clamped(to: 5...300)
     }
 
     var pauseDuringMeetings: Bool {
-        UserDefaults.standard.bool(forKey: "pauseDuringMeetings")
+        UserDefaults.standard.bool(forKey: SettingsKey.pauseDuringMeetings)
     }
 
     var muteSounds: Bool {
-        UserDefaults.standard.bool(forKey: "muteSounds")
+        UserDefaults.standard.bool(forKey: SettingsKey.muteSounds)
     }
 
     var pauseWhenIdle: Bool {
-        UserDefaults.standard.bool(forKey: "pauseWhenIdle")
+        UserDefaults.standard.bool(forKey: SettingsKey.pauseWhenIdle)
     }
 
     var menuBarText: String {
@@ -90,15 +99,17 @@ class TimerManager: ObservableObject {
     init() {
         // Register defaults
         UserDefaults.standard.register(defaults: [
-            "workDurationMinutes": 20,
-            "breakDurationSeconds": 20,
-            "pauseDuringMeetings": true,
-            "allowSkipBreak": true,
-            "muteSounds": false,
-            "pauseWhenIdle": true,
+            SettingsKey.workDurationMinutes: 20,
+            SettingsKey.breakDurationSeconds: 20,
+            SettingsKey.pauseDuringMeetings: true,
+            SettingsKey.allowSkipBreak: true,
+            SettingsKey.muteSounds: false,
+            SettingsKey.pauseWhenIdle: true,
         ])
-        // Start timer immediately on launch
-        start()
+        // Start timer and ticker (ticker runs for app lifetime)
+        remainingSeconds = workDurationSeconds
+        state = .working
+        startTicking()
 
         // Reset work timer on wake — sleep time isn't work time
         NSWorkspace.shared.notificationCenter.addObserver(
@@ -128,7 +139,6 @@ class TimerManager: ObservableObject {
     func start() {
         remainingSeconds = workDurationSeconds
         state = .working
-        startTicking()
     }
 
     func pause() {
@@ -172,15 +182,6 @@ class TimerManager: ObservableObject {
             .sink { [weak self] _ in
                 self?.tick()
             }
-    }
-
-    private func stopTicking() {
-        timerCancellable?.cancel()
-        timerCancellable = nil
-        if let activity {
-            ProcessInfo.processInfo.endActivity(activity)
-            self.activity = nil
-        }
     }
 
     private func tick() {

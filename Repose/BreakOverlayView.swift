@@ -4,7 +4,7 @@ import SwiftUI
 struct BreakOverlayView: View {
     @ObservedObject var timerManager: TimerManager
     let isPrimary: Bool
-    @AppStorage("allowSkipBreak") private var allowSkipBreak: Bool = true
+    @AppStorage(SettingsKey.allowSkipBreak) private var allowSkipBreak: Bool = true
     @State private var breathe = false
     @State private var appeared = false
     @State private var ringProgress: CGFloat = 0

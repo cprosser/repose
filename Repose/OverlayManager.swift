@@ -40,7 +40,7 @@ class OverlayManager {
         }
 
         // Install escape key handler to skip break
-        let allowSkip = UserDefaults.standard.bool(forKey: "allowSkipBreak")
+        let allowSkip = UserDefaults.standard.bool(forKey: SettingsKey.allowSkipBreak)
         if allowSkip {
             keyMonitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { event in
                 if event.keyCode == 53 { // Escape
