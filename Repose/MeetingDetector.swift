@@ -138,30 +138,11 @@ class MeetingDetector: ObservableObject {
         )
 
         var dataSize: UInt32 = 0
-        let result = AudioObjectGetPropertyDataSize(
-            deviceID,
-            &propertyAddress,
-            0, nil,
-            &dataSize
-        )
+        guard AudioObjectGetPropertyDataSize(deviceID, &propertyAddress, 0, nil, &dataSize) == kAudioHardwareNoError,
+              dataSize > 0 else { return false }
 
-        guard result == kAudioHardwareNoError, dataSize > 0 else { return false }
-
-        let bufferListPointer = UnsafeMutablePointer<AudioBufferList>.allocate(capacity: 1)
-        defer { bufferListPointer.deallocate() }
-
-        var size = dataSize
-        let result2 = AudioObjectGetPropertyData(
-            deviceID,
-            &propertyAddress,
-            0, nil,
-            &size,
-            bufferListPointer
-        )
-
-        guard result2 == kAudioHardwareNoError else { return false }
-
-        let bufferList = bufferListPointer.pointee
+        var bufferList = AudioBufferList()
+        guard AudioObjectGetPropertyData(deviceID, &propertyAddress, 0, nil, &dataSize, &bufferList) == kAudioHardwareNoError else { return false }
         return bufferList.mNumberBuffers > 0
     }
 

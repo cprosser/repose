@@ -93,20 +93,24 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         menu.addItem(.separator())
 
         // Toggles
-        pauseDuringMeetingsMenuItem = NSMenuItem(title: "Pause During Meetings", action: #selector(togglePauseDuringMeetings), keyEquivalent: "")
+        pauseDuringMeetingsMenuItem = NSMenuItem(title: "Pause During Meetings", action: #selector(toggleBoolSetting(_:)), keyEquivalent: "")
         pauseDuringMeetingsMenuItem.target = self
+        pauseDuringMeetingsMenuItem.representedObject = "pauseDuringMeetings"
         menu.addItem(pauseDuringMeetingsMenuItem)
 
-        pauseWhenIdleMenuItem = NSMenuItem(title: "Pause When Idle", action: #selector(togglePauseWhenIdle), keyEquivalent: "")
+        pauseWhenIdleMenuItem = NSMenuItem(title: "Pause When Idle", action: #selector(toggleBoolSetting(_:)), keyEquivalent: "")
         pauseWhenIdleMenuItem.target = self
+        pauseWhenIdleMenuItem.representedObject = "pauseWhenIdle"
         menu.addItem(pauseWhenIdleMenuItem)
 
-        allowSkipMenuItem = NSMenuItem(title: "Allow Skip Break", action: #selector(toggleAllowSkip), keyEquivalent: "")
+        allowSkipMenuItem = NSMenuItem(title: "Allow Skip Break", action: #selector(toggleBoolSetting(_:)), keyEquivalent: "")
         allowSkipMenuItem.target = self
+        allowSkipMenuItem.representedObject = "allowSkipBreak"
         menu.addItem(allowSkipMenuItem)
 
-        muteSoundsMenuItem = NSMenuItem(title: "Mute Sounds", action: #selector(toggleMuteSounds), keyEquivalent: "")
+        muteSoundsMenuItem = NSMenuItem(title: "Mute Sounds", action: #selector(toggleBoolSetting(_:)), keyEquivalent: "")
         muteSoundsMenuItem.target = self
+        muteSoundsMenuItem.representedObject = "muteSounds"
         menu.addItem(muteSoundsMenuItem)
 
         menu.addItem(.separator())
@@ -254,24 +258,9 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         UserDefaults.standard.set(sender.tag, forKey: "breakDurationSeconds")
     }
 
-    @objc private func togglePauseDuringMeetings() {
-        let current = UserDefaults.standard.bool(forKey: "pauseDuringMeetings")
-        UserDefaults.standard.set(!current, forKey: "pauseDuringMeetings")
-    }
-
-    @objc private func togglePauseWhenIdle() {
-        let current = UserDefaults.standard.bool(forKey: "pauseWhenIdle")
-        UserDefaults.standard.set(!current, forKey: "pauseWhenIdle")
-    }
-
-    @objc private func toggleAllowSkip() {
-        let current = UserDefaults.standard.bool(forKey: "allowSkipBreak")
-        UserDefaults.standard.set(!current, forKey: "allowSkipBreak")
-    }
-
-    @objc private func toggleMuteSounds() {
-        let current = UserDefaults.standard.bool(forKey: "muteSounds")
-        UserDefaults.standard.set(!current, forKey: "muteSounds")
+    @objc private func toggleBoolSetting(_ sender: NSMenuItem) {
+        guard let key = sender.representedObject as? String else { return }
+        UserDefaults.standard.set(!UserDefaults.standard.bool(forKey: key), forKey: key)
     }
 
     @objc private func toggleLaunchAtLogin() {
@@ -307,12 +296,6 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     }
 
     // MARK: - Helpers
-
-    private func formatTime(_ seconds: Int) -> String {
-        let m = seconds / 60
-        let s = seconds % 60
-        return String(format: "%d:%02d", m, s)
-    }
 
     private func formatBreakDuration(_ seconds: Int) -> String {
         if seconds < 60 {
