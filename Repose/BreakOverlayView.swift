@@ -123,7 +123,7 @@ struct BreakOverlayView: View {
             }
             updateRingProgress()
         }
-        .onChange(of: timerManager.remainingSeconds) { _ in
+        .onChangeCompat(of: timerManager.remainingSeconds) {
             updateRingProgress()
         }
     }
@@ -141,5 +141,16 @@ struct BreakOverlayView: View {
         let m = seconds / 60
         let s = seconds % 60
         return String(format: "%d:%02d", m, s)
+    }
+}
+
+private extension View {
+    @ViewBuilder
+    func onChangeCompat<V: Equatable>(of value: V, perform action: @escaping () -> Void) -> some View {
+        if #available(macOS 14.0, *) {
+            self.onChange(of: value) { _, _ in action() }
+        } else {
+            self.onChange(of: value) { _ in action() }
+        }
     }
 }
