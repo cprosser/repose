@@ -251,11 +251,25 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     }
 
     @objc private func showAbout() {
+        let credits = NSMutableAttributedString()
+        credits.append(NSAttributedString(
+            string: "by Fikri Karim\n",
+            attributes: [.font: NSFont.systemFont(ofSize: 11)]
+        ))
+        credits.append(NSAttributedString(
+            string: "github.com/fikrikarim/repose",
+            attributes: [
+                .font: NSFont.systemFont(ofSize: 11),
+                .link: URL(string: "https://github.com/fikrikarim/repose")!,
+            ]
+        ))
+
         NSApplication.shared.activate(ignoringOtherApps: true)
         NSApplication.shared.orderFrontStandardAboutPanel(options: [
             .applicationName: "Repose",
             .applicationVersion: Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "",
             .version: Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "",
+            .credits: credits,
         ])
     }
 
