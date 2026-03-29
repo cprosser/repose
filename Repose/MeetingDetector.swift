@@ -138,12 +138,10 @@ class MeetingDetector: ObservableObject {
         )
 
         var dataSize: UInt32 = 0
-        guard AudioObjectGetPropertyDataSize(deviceID, &propertyAddress, 0, nil, &dataSize) == kAudioHardwareNoError,
-              dataSize > 0 else { return false }
-
-        var bufferList = AudioBufferList()
-        guard AudioObjectGetPropertyData(deviceID, &propertyAddress, 0, nil, &dataSize, &bufferList) == kAudioHardwareNoError else { return false }
-        return bufferList.mNumberBuffers > 0
+        let status = AudioObjectGetPropertyDataSize(deviceID, &propertyAddress, 0, nil, &dataSize)
+        // dataSize exceeds the empty AudioBufferList header only when there's at least one AudioBuffer
+        return status == kAudioHardwareNoError
+            && dataSize > MemoryLayout<AudioBufferList>.size - MemoryLayout<AudioBuffer>.size
     }
 
     private func isAudioDeviceRunning(_ deviceID: AudioDeviceID) -> Bool {
