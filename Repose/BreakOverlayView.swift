@@ -1,3 +1,4 @@
+import AppKit
 import SwiftUI
 
 struct BreakOverlayView: View {
@@ -7,6 +8,10 @@ struct BreakOverlayView: View {
     @State private var breathe = false
     @State private var appeared = false
     @State private var ringProgress: CGFloat = 0
+
+    private var reduceMotion: Bool {
+        NSWorkspace.shared.accessibilityDisplayShouldReduceMotion
+    }
 
     var body: some View {
         ZStack {
@@ -115,8 +120,12 @@ struct BreakOverlayView: View {
             }
         }
         .onAppear {
-            withAnimation(.easeInOut(duration: 4).repeatForever(autoreverses: true)) {
+            if reduceMotion {
                 breathe = true
+            } else {
+                withAnimation(.easeInOut(duration: 4).repeatForever(autoreverses: true)) {
+                    breathe = true
+                }
             }
             withAnimation(.easeOut(duration: 0.8)) {
                 appeared = true
@@ -132,8 +141,12 @@ struct BreakOverlayView: View {
         let total = CGFloat(timerManager.breakDurationSeconds)
         let remaining = CGFloat(timerManager.remainingSeconds)
         let progress = total > 0 ? (total - remaining) / total : 0
-        withAnimation(.linear(duration: 1)) {
+        if reduceMotion {
             ringProgress = progress
+        } else {
+            withAnimation(.linear(duration: 1)) {
+                ringProgress = progress
+            }
         }
     }
 
