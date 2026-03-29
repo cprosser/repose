@@ -18,6 +18,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     private var breakDurationMenu: NSMenu!
     private var pauseDuringMeetingsMenuItem: NSMenuItem!
     private var allowSkipMenuItem: NSMenuItem!
+    private var pauseWhenIdleMenuItem: NSMenuItem!
     private var muteSoundsMenuItem: NSMenuItem!
     private var launchAtLoginMenuItem: NSMenuItem!
 
@@ -95,6 +96,10 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         pauseDuringMeetingsMenuItem = NSMenuItem(title: "Pause During Meetings", action: #selector(togglePauseDuringMeetings), keyEquivalent: "")
         pauseDuringMeetingsMenuItem.target = self
         menu.addItem(pauseDuringMeetingsMenuItem)
+
+        pauseWhenIdleMenuItem = NSMenuItem(title: "Pause When Idle", action: #selector(togglePauseWhenIdle), keyEquivalent: "")
+        pauseWhenIdleMenuItem.target = self
+        menu.addItem(pauseWhenIdleMenuItem)
 
         allowSkipMenuItem = NSMenuItem(title: "Allow Skip Break", action: #selector(toggleAllowSkip), keyEquivalent: "")
         allowSkipMenuItem.target = self
@@ -186,6 +191,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
 
         // Toggle states
         pauseDuringMeetingsMenuItem.state = UserDefaults.standard.bool(forKey: "pauseDuringMeetings") ? .on : .off
+        pauseWhenIdleMenuItem.state = UserDefaults.standard.bool(forKey: "pauseWhenIdle") ? .on : .off
         allowSkipMenuItem.state = UserDefaults.standard.bool(forKey: "allowSkipBreak") ? .on : .off
         muteSoundsMenuItem.state = UserDefaults.standard.bool(forKey: "muteSounds") ? .on : .off
         launchAtLoginMenuItem.state = SMAppService.mainApp.status == .enabled ? .on : .off
@@ -251,6 +257,11 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     @objc private func togglePauseDuringMeetings() {
         let current = UserDefaults.standard.bool(forKey: "pauseDuringMeetings")
         UserDefaults.standard.set(!current, forKey: "pauseDuringMeetings")
+    }
+
+    @objc private func togglePauseWhenIdle() {
+        let current = UserDefaults.standard.bool(forKey: "pauseWhenIdle")
+        UserDefaults.standard.set(!current, forKey: "pauseWhenIdle")
     }
 
     @objc private func toggleAllowSkip() {

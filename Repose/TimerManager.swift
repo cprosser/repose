@@ -1,6 +1,8 @@
 import Foundation
 import Combine
 import AppKit
+import CoreGraphics
+import IOKit
 
 enum TimerState {
     case working
@@ -47,6 +49,10 @@ class TimerManager: ObservableObject {
         UserDefaults.standard.bool(forKey: "muteSounds")
     }
 
+    var pauseWhenIdle: Bool {
+        UserDefaults.standard.bool(forKey: "pauseWhenIdle")
+    }
+
     var menuBarText: String {
         switch state {
         case .working:
@@ -89,6 +95,7 @@ class TimerManager: ObservableObject {
             "pauseDuringMeetings": true,
             "allowSkipBreak": true,
             "muteSounds": false,
+            "pauseWhenIdle": true,
         ])
         // Start timer immediately on launch
         start()
@@ -179,9 +186,10 @@ class TimerManager: ObservableObject {
     private func tick() {
         tickCount += 1
 
-        // Check for meetings every 10 seconds
-        if pauseDuringMeetings && tickCount % 10 == 0 {
-            checkMeetingStatus()
+        // Check for meetings and idle every 10 seconds
+        if tickCount % 10 == 0 {
+            if pauseDuringMeetings { checkMeetingStatus() }
+            if pauseWhenIdle { checkIdleStatus() }
         }
 
         switch state {
@@ -248,6 +256,60 @@ class TimerManager: ObservableObject {
                 resume()
             }
         }
+    }
+
+    // MARK: - Idle Detection
+
+    private let idleThreshold: TimeInterval = 300 // 5 minutes
+
+    private func checkIdleStatus() {
+        let idleTime = CGEventSource.secondsSinceLastEventType(.combinedSessionState)
+
+        if idleTime >= idleThreshold && !hasActiveDisplaySleepAssertion() {
+            if state == .working {
+                state = .paused
+                pauseReason = .idle
+            }
+        } else {
+            if state == .paused && pauseReason == .idle {
+                resumeFromIdle()
+            }
+        }
+    }
+
+    private func resumeFromIdle() {
+        guard state == .paused && pauseReason == .idle else { return }
+
+        // Check for active meeting before resuming to avoid a gap
+        if pauseDuringMeetings {
+            meetingDetector.check()
+            if meetingDetector.isInMeeting {
+                secondsBeforePause = workDurationSeconds
+                pauseReason = .meeting
+                return
+            }
+        }
+
+        remainingSeconds = workDurationSeconds
+        state = .working
+    }
+
+    private func hasActiveDisplaySleepAssertion() -> Bool {
+        var assertions: Unmanaged<CFDictionary>?
+        guard IOPMCopyAssertionsByProcess(&assertions) == kIOReturnSuccess,
+              let dict = assertions?.takeRetainedValue() as? [String: [[String: Any]]] else {
+            return false
+        }
+
+        for (_, processAssertions) in dict {
+            for assertion in processAssertions {
+                if let type = assertion["AssertType"] as? String,
+                   type == "PreventUserIdleDisplaySleep" || type == "NoDisplaySleep" {
+                    return true
+                }
+            }
+        }
+        return false
     }
 
     private func formatTime(_ seconds: Int) -> String {
