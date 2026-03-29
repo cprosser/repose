@@ -273,6 +273,7 @@ class TimerManager: ObservableObject {
 
         if idleTime >= idleThreshold && !hasActiveDisplaySleepAssertion() {
             if state == .working {
+                secondsBeforePause = remainingSeconds
                 state = .paused
                 pauseReason = .idle
             }
