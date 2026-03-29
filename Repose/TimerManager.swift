@@ -260,7 +260,11 @@ class TimerManager: ObservableObject {
 
     // MARK: - Idle Detection
 
+    #if DEBUG
+    private let idleThreshold: TimeInterval = 30 // 30 seconds for testing
+    #else
     private let idleThreshold: TimeInterval = 300 // 5 minutes
+    #endif
 
     private func checkIdleStatus() {
         // kCGAnyInputEventType (~0) checks all input event types
