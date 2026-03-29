@@ -52,6 +52,19 @@ class OverlayManager {
         }
     }
 
+    func dismissWithAnimation() {
+        for window in overlayWindows {
+            NSAnimationContext.runAnimationGroup { context in
+                context.duration = 0.4
+                context.timingFunction = CAMediaTimingFunction(name: .easeIn)
+                window.animator().alphaValue = 0
+            }
+        }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.45) { [weak self] in
+            self?.dismissOverlay()
+        }
+    }
+
     func dismissOverlay() {
         if let keyMonitor {
             NSEvent.removeMonitor(keyMonitor)

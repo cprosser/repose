@@ -191,7 +191,7 @@ class TimerManager: ObservableObject {
 
     private func endBreak() {
         NSSound(named: "Blow")?.play()
-        overlayManager.dismissOverlay()
+        overlayManager.dismissWithAnimation()
         remainingSeconds = workDurationSeconds
         state = .working
     }
