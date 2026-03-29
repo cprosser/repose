@@ -130,8 +130,6 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
 
     private func updateStatusText() {
         switch timerManager.state {
-        case .idle:
-            statusMenuItem.title = "Repose"
         case .working:
             statusMenuItem.title = "Next break in \(formatTime(timerManager.remainingSeconds))"
         case .onBreak:
@@ -202,7 +200,6 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     private func updateStatusBarTitle() {
         let icon: String
         switch timerManager.state {
-        case .idle: icon = "eye"
         case .working: icon = "timer"
         case .onBreak: icon = "cup.and.saucer.fill"
         case .paused:

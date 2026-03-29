@@ -3,7 +3,6 @@ import Combine
 import AppKit
 
 enum TimerState {
-    case idle
     case working
     case onBreak
     case paused
@@ -11,7 +10,7 @@ enum TimerState {
 
 @MainActor
 class TimerManager: ObservableObject {
-    @Published var state: TimerState = .idle
+    @Published var state: TimerState = .working
     @Published var remainingSeconds: Int = 0
 
     private var timerCancellable: AnyCancellable?
@@ -37,20 +36,8 @@ class TimerManager: ObservableObject {
         UserDefaults.standard.bool(forKey: "pauseDuringMeetings")
     }
 
-    var menuBarIcon: String {
-        switch state {
-        case .idle: return "eye"
-        case .working: return "timer"
-        case .onBreak: return "eye"
-        case .paused:
-            return meetingDetector.isInMeeting ? "video.fill" : "pause.circle"
-        }
-    }
-
     var menuBarText: String {
         switch state {
-        case .idle:
-            return "Repose"
         case .working:
             return formatTime(remainingSeconds)
         case .onBreak:
@@ -60,22 +47,6 @@ class TimerManager: ObservableObject {
                 return "Meeting \(formatTime(secondsBeforePause))"
             }
             return "Paused \(formatTime(secondsBeforePause))"
-        }
-    }
-
-    var statusDescription: String {
-        switch state {
-        case .idle:
-            return "Click Start to begin"
-        case .working:
-            return "Next break in \(formatTime(remainingSeconds))"
-        case .onBreak:
-            return "Take a break! \(formatTime(remainingSeconds))"
-        case .paused:
-            if let source = meetingDetector.meetingSource {
-                return "Paused: \(source)"
-            }
-            return "Timer paused"
         }
     }
 
@@ -110,7 +81,7 @@ class TimerManager: ObservableObject {
             overlayManager.dismissOverlay()
             remainingSeconds = workDurationSeconds
             state = .working
-        case .idle, .paused:
+        case .paused:
             break
         }
     }
@@ -119,13 +90,6 @@ class TimerManager: ObservableObject {
         remainingSeconds = workDurationSeconds
         state = .working
         startTicking()
-    }
-
-    func stop() {
-        state = .idle
-        remainingSeconds = 0
-        stopTicking()
-        overlayManager.dismissOverlay()
     }
 
     func pause() {
@@ -187,7 +151,7 @@ class TimerManager: ObservableObject {
         }
 
         switch state {
-        case .idle, .paused:
+        case .paused:
             break
 
         case .working:
