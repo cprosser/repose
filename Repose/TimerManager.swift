@@ -172,6 +172,17 @@ class TimerManager: ObservableObject {
     }
 
     private func startBreak() {
+        // Check for meeting immediately before showing break overlay
+        if pauseDuringMeetings {
+            meetingDetector.check()
+            if meetingDetector.isInMeeting {
+                secondsBeforePause = workDurationSeconds
+                state = .paused
+                pausedByMeeting = true
+                return
+            }
+        }
+
         remainingSeconds = breakDurationSeconds
         state = .onBreak
         overlayManager.showBreakOverlay(timerManager: self)
