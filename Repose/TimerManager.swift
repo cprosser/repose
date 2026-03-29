@@ -16,6 +16,7 @@ class TimerManager: ObservableObject {
     private var timerCancellable: AnyCancellable?
     private var tickCount: Int = 0
     private var secondsBeforePause: Int = 0
+    private var pausedByMeeting = false
 
     let meetingDetector = MeetingDetector()
     let overlayManager = OverlayManager()
@@ -96,12 +97,14 @@ class TimerManager: ObservableObject {
         guard state == .working else { return }
         secondsBeforePause = remainingSeconds
         state = .paused
+        pausedByMeeting = false
     }
 
     func resume() {
         guard state == .paused else { return }
         remainingSeconds = secondsBeforePause
         state = .working
+        pausedByMeeting = false
     }
 
     func skipBreak() {
@@ -187,14 +190,16 @@ class TimerManager: ObservableObject {
             if state == .working {
                 secondsBeforePause = remainingSeconds
                 state = .paused
+                pausedByMeeting = true
             } else if state == .onBreak {
                 // If a meeting starts during a break, skip the break
                 skipBreak()
                 secondsBeforePause = remainingSeconds
                 state = .paused
+                pausedByMeeting = true
             }
         } else {
-            if state == .paused && meetingDetector.meetingSource == nil {
+            if state == .paused && pausedByMeeting {
                 // Meeting ended, resume
                 resume()
             }
