@@ -3,12 +3,12 @@
     <channel>
         <title>Repose</title>
         <item>
-            <title>1.0.0</title>
-            <pubDate>Sat, 28 Mar 2026 14:45:21 +0700</pubDate>
-            <sparkle:version>1</sparkle:version>
-            <sparkle:shortVersionString>1.0.0</sparkle:shortVersionString>
+            <title>1.1.0</title>
+            <pubDate>Sun, 29 Mar 2026 20:57:30 +0700</pubDate>
+            <sparkle:version>2</sparkle:version>
+            <sparkle:shortVersionString>1.1.0</sparkle:shortVersionString>
             <sparkle:minimumSystemVersion>13.0</sparkle:minimumSystemVersion>
-            <enclosure url="https://github.com/fikrikarim/repose/releases/download/v1.0.0/Repose.zip" length="1310054" type="application/octet-stream" sparkle:edSignature="DrW3ijGNer6GdeEOAsZ4meM1zdw2huXJiWsi2qqDtjtC2rU7t8lh1Dx5EpfC/UH16NSiG6wi6f04lxllXtJVAg=="/>
+            <enclosure url="https://github.com/fikrikarim/repose/releases/download/v1.1.0/Repose.zip" length="1338951" type="application/octet-stream" sparkle:edSignature="D0/E5m1Ps21c8bUNkuG367doqzP7AhPypWugslV9u6bM9tJ89GQTBvtagOGb2ISY3DPOH2dKvrHCnHMpMiHZBA=="/>
         </item>
     </channel>
 </rss>
