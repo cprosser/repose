@@ -8,7 +8,7 @@ class MeetingDetector: ObservableObject {
 
     func check() {
         let cameraActive = checkCamera()
-        let micActive = checkMicrophone()
+        let micActive = shouldCheckMicrophone ? checkMicrophone() : false
 
         if cameraActive {
             isInMeeting = true
@@ -20,6 +20,10 @@ class MeetingDetector: ObservableObject {
             isInMeeting = false
             meetingSource = nil
         }
+    }
+
+    private var shouldCheckMicrophone: Bool {
+        !UserDefaults.standard.bool(forKey: SettingsKey.ignoreMicrophoneForMeetingDetection)
     }
 
     // MARK: - Camera Detection via CoreMediaIO
