@@ -19,7 +19,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     private var pauseDuringMeetingsMenuItem: NSMenuItem!
     private var ignoreMicrophoneForMeetingDetectionMenuItem: NSMenuItem!
     private var allowSkipMenuItem: NSMenuItem!
-    private var pauseWhenIdleMenuItem: NSMenuItem!
+    private var naturalBreakDetectionMenuItem: NSMenuItem!
     private var muteSoundsMenuItem: NSMenuItem!
     private var launchAtLoginMenuItem: NSMenuItem!
 
@@ -104,10 +104,10 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         ignoreMicrophoneForMeetingDetectionMenuItem.representedObject = SettingsKey.ignoreMicrophoneForMeetingDetection
         menu.addItem(ignoreMicrophoneForMeetingDetectionMenuItem)
 
-        pauseWhenIdleMenuItem = NSMenuItem(title: "Pause When Idle", action: #selector(toggleBoolSetting(_:)), keyEquivalent: "")
-        pauseWhenIdleMenuItem.target = self
-        pauseWhenIdleMenuItem.representedObject = SettingsKey.pauseWhenIdle
-        menu.addItem(pauseWhenIdleMenuItem)
+        naturalBreakDetectionMenuItem = NSMenuItem(title: "Natural Break Detection", action: #selector(toggleBoolSetting(_:)), keyEquivalent: "")
+        naturalBreakDetectionMenuItem.target = self
+        naturalBreakDetectionMenuItem.representedObject = SettingsKey.naturalBreakDetection
+        menu.addItem(naturalBreakDetectionMenuItem)
 
         allowSkipMenuItem = NSMenuItem(title: "Allow Skip Break", action: #selector(toggleBoolSetting(_:)), keyEquivalent: "")
         allowSkipMenuItem.target = self
@@ -203,7 +203,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         pauseDuringMeetingsMenuItem.state = UserDefaults.standard.bool(forKey: SettingsKey.pauseDuringMeetings) ? .on : .off
         ignoreMicrophoneForMeetingDetectionMenuItem.state = UserDefaults.standard.bool(forKey: SettingsKey.ignoreMicrophoneForMeetingDetection) ? .on : .off
         ignoreMicrophoneForMeetingDetectionMenuItem.isEnabled = UserDefaults.standard.bool(forKey: SettingsKey.pauseDuringMeetings)
-        pauseWhenIdleMenuItem.state = UserDefaults.standard.bool(forKey: SettingsKey.pauseWhenIdle) ? .on : .off
+        naturalBreakDetectionMenuItem.state = UserDefaults.standard.bool(forKey: SettingsKey.naturalBreakDetection) ? .on : .off
         allowSkipMenuItem.state = UserDefaults.standard.bool(forKey: SettingsKey.allowSkipBreak) ? .on : .off
         muteSoundsMenuItem.state = UserDefaults.standard.bool(forKey: SettingsKey.muteSounds) ? .on : .off
         launchAtLoginMenuItem.state = SMAppService.mainApp.status == .enabled ? .on : .off
@@ -236,7 +236,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         case .paused:
             switch timerManager.currentPauseReason {
             case .meeting: icon = "video.fill"
-            case .idle: icon = "moon.zzz"
+            case .inactive: icon = timerManager.hasSatisfiedNaturalBreak ? "figure.walk" : "moon.zzz"
             default: icon = "pause.circle"
             }
         }

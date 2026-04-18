@@ -13,7 +13,7 @@ enum TimerState {
 enum PauseReason {
     case manual
     case meeting
-    case idle
+    case inactive
 }
 
 enum SettingsKey {
@@ -23,7 +23,7 @@ enum SettingsKey {
     static let ignoreMicrophoneForMeetingDetection = "ignoreMicrophoneForMeetingDetection"
     static let allowSkipBreak = "allowSkipBreak"
     static let muteSounds = "muteSounds"
-    static let pauseWhenIdle = "pauseWhenIdle"
+    static let naturalBreakDetection = "pauseWhenIdle"
 }
 
 @MainActor
@@ -35,6 +35,9 @@ class TimerManager: ObservableObject {
     private var tickCount: Int = 0
     private var secondsBeforePause: Int = 0
     private var pauseReason: PauseReason = .manual
+    private var inactivityBeganAt: Date?
+    private var sleepBeganAt: Date?
+    private var naturalBreakSatisfied = false
 
     let meetingDetector = MeetingDetector()
     let overlayManager = OverlayManager()
@@ -59,8 +62,8 @@ class TimerManager: ObservableObject {
         UserDefaults.standard.bool(forKey: SettingsKey.muteSounds)
     }
 
-    var pauseWhenIdle: Bool {
-        UserDefaults.standard.bool(forKey: SettingsKey.pauseWhenIdle)
+    var naturalBreakDetectionEnabled: Bool {
+        UserDefaults.standard.bool(forKey: SettingsKey.naturalBreakDetection)
     }
 
     var menuBarText: String {
@@ -73,8 +76,8 @@ class TimerManager: ObservableObject {
             switch pauseReason {
             case .meeting:
                 return "Meeting \(formatTime(secondsBeforePause))"
-            case .idle:
-                return "Idle"
+            case .inactive:
+                return naturalBreakSatisfied ? "Natural Break" : "Inactive"
             case .manual:
                 return "Paused \(formatTime(secondsBeforePause))"
             }
@@ -86,8 +89,8 @@ class TimerManager: ObservableObject {
         switch pauseReason {
         case .meeting:
             return meetingDetector.meetingSource.map { "Paused — \($0)" } ?? "Paused — Meeting"
-        case .idle:
-            return "Paused — Idle"
+        case .inactive:
+            return naturalBreakSatisfied ? "Paused — Natural Break" : "Paused — Inactive"
         case .manual:
             return "Paused"
         }
@@ -95,6 +98,10 @@ class TimerManager: ObservableObject {
 
     var currentPauseReason: PauseReason? {
         state == .paused ? pauseReason : nil
+    }
+
+    var hasSatisfiedNaturalBreak: Bool {
+        state == .paused && pauseReason == .inactive && naturalBreakSatisfied
     }
 
     init() {
@@ -106,14 +113,23 @@ class TimerManager: ObservableObject {
             SettingsKey.ignoreMicrophoneForMeetingDetection: false,
             SettingsKey.allowSkipBreak: true,
             SettingsKey.muteSounds: false,
-            SettingsKey.pauseWhenIdle: true,
+            SettingsKey.naturalBreakDetection: true,
         ])
         // Start timer and ticker (ticker runs for app lifetime)
         remainingSeconds = workDurationSeconds
         state = .working
         startTicking()
 
-        // Reset work timer on wake — sleep time isn't work time
+        NSWorkspace.shared.notificationCenter.addObserver(
+            forName: NSWorkspace.willSleepNotification,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            Task { @MainActor in
+                self?.handleWillSleep()
+            }
+        }
+
         NSWorkspace.shared.notificationCenter.addObserver(
             forName: NSWorkspace.didWakeNotification,
             object: nil,
@@ -125,7 +141,26 @@ class TimerManager: ObservableObject {
         }
     }
 
+    private func handleWillSleep() {
+        sleepBeganAt = Date()
+
+        guard naturalBreakDetectionEnabled else { return }
+
+        if state == .working, let sleepBeganAt {
+            enterInactivityPause(at: sleepBeganAt)
+        }
+    }
+
     private func handleWake() {
+        defer { sleepBeganAt = nil }
+
+        if naturalBreakDetectionEnabled,
+           state == .paused,
+           pauseReason == .inactive {
+            resumeFromInactivity(shouldResumeImmediately: true)
+            return
+        }
+
         switch state {
         case .working:
             remainingSeconds = workDurationSeconds
@@ -139,12 +174,15 @@ class TimerManager: ObservableObject {
     }
 
     func start() {
+        clearInactivitySession()
         remainingSeconds = workDurationSeconds
         state = .working
+        pauseReason = .manual
     }
 
     func pause() {
         guard state == .working else { return }
+        clearInactivitySession()
         secondsBeforePause = remainingSeconds
         state = .paused
         pauseReason = .manual
@@ -152,12 +190,14 @@ class TimerManager: ObservableObject {
 
     func resume() {
         guard state == .paused else { return }
+        clearInactivitySession()
         remainingSeconds = secondsBeforePause
         state = .working
         pauseReason = .manual
     }
 
     func skipBreak() {
+        clearInactivitySession()
         overlayManager.dismissOverlay()
         remainingSeconds = workDurationSeconds
         state = .working
@@ -167,7 +207,11 @@ class TimerManager: ObservableObject {
         if state == .working {
             pause()
         } else if state == .paused && pauseReason != .meeting {
-            resume()
+            if pauseReason == .inactive {
+                resumeFromInactivity(shouldResumeImmediately: true)
+            } else {
+                resume()
+            }
         }
     }
 
@@ -189,10 +233,13 @@ class TimerManager: ObservableObject {
     private func tick() {
         tickCount += 1
 
-        // Check for meetings and idle every 5 seconds
+        if naturalBreakDetectionEnabled {
+            checkInactivityStatus()
+        }
+
+        // Check for meetings every 5 seconds
         if tickCount % 5 == 0 {
             if pauseDuringMeetings { checkMeetingStatus() }
-            if pauseWhenIdle { checkIdleStatus() }
         }
 
         switch state {
@@ -261,46 +308,80 @@ class TimerManager: ObservableObject {
         }
     }
 
-    // MARK: - Idle Detection
+    // MARK: - Inactivity Detection
 
-    #if DEBUG
-    private let idleThreshold: TimeInterval = 30 // 30 seconds for testing
-    #else
-    private let idleThreshold: TimeInterval = 300 // 5 minutes
-    #endif
+    private let inactivityPauseThreshold: TimeInterval = 10
 
-    private func checkIdleStatus() {
+    private func checkInactivityStatus() {
         // kCGAnyInputEventType (~0) checks all input event types
-        let idleTime = CGEventSource.secondsSinceLastEventType(.combinedSessionState, eventType: CGEventType(rawValue: ~0)!)
+        let inactivityDuration = CGEventSource.secondsSinceLastEventType(.combinedSessionState, eventType: CGEventType(rawValue: ~0)!)
+        let shouldPauseForInactivity = inactivityDuration >= inactivityPauseThreshold && !hasActiveDisplaySleepAssertion()
 
-        if idleTime >= idleThreshold && !hasActiveDisplaySleepAssertion() {
+        if shouldPauseForInactivity {
             if state == .working {
-                secondsBeforePause = remainingSeconds
-                state = .paused
-                pauseReason = .idle
+                enterInactivityPause(at: Date())
+            } else if state == .paused && pauseReason == .inactive {
+                updateNaturalBreakProgress()
             }
         } else {
-            if state == .paused && pauseReason == .idle {
-                resumeFromIdle()
+            if state == .paused && pauseReason == .inactive {
+                resumeFromInactivity(shouldResumeImmediately: true)
             }
         }
     }
 
-    private func resumeFromIdle() {
-        guard state == .paused && pauseReason == .idle else { return }
+    private func enterInactivityPause(at startDate: Date) {
+        guard state == .working else { return }
+
+        secondsBeforePause = remainingSeconds
+        inactivityBeganAt = startDate
+        naturalBreakSatisfied = false
+        state = .paused
+        pauseReason = .inactive
+    }
+
+    private func updateNaturalBreakProgress(referenceDate: Date = Date()) {
+        guard pauseReason == .inactive,
+              let inactivityBeganAt,
+              !naturalBreakSatisfied else { return }
+
+        if referenceDate.timeIntervalSince(inactivityBeganAt) >= TimeInterval(workDurationSeconds) {
+            naturalBreakSatisfied = true
+            secondsBeforePause = workDurationSeconds
+            remainingSeconds = workDurationSeconds
+        }
+    }
+
+    private func resumeFromInactivity(shouldResumeImmediately: Bool) {
+        guard state == .paused && pauseReason == .inactive else { return }
+
+        updateNaturalBreakProgress()
+        let resumeSeconds = naturalBreakSatisfied ? workDurationSeconds : secondsBeforePause
 
         // Check for active meeting before resuming to avoid a gap
         if pauseDuringMeetings {
             meetingDetector.check()
             if meetingDetector.isInMeeting {
-                secondsBeforePause = workDurationSeconds
+                secondsBeforePause = resumeSeconds
+                inactivityBeganAt = nil
+                naturalBreakSatisfied = false
                 pauseReason = .meeting
                 return
             }
         }
 
-        remainingSeconds = workDurationSeconds
-        state = .working
+        clearInactivitySession()
+        remainingSeconds = resumeSeconds
+
+        if shouldResumeImmediately {
+            state = .working
+            pauseReason = .manual
+        }
+    }
+
+    private func clearInactivitySession() {
+        inactivityBeganAt = nil
+        naturalBreakSatisfied = false
     }
 
     private func hasActiveDisplaySleepAssertion() -> Bool {
