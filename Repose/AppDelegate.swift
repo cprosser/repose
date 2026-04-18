@@ -17,6 +17,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     private var workIntervalMenu: NSMenu!
     private var breakDurationMenu: NSMenu!
     private var pauseDuringMeetingsMenuItem: NSMenuItem!
+    private var ignoreMicrophoneForMeetingDetectionMenuItem: NSMenuItem!
     private var allowSkipMenuItem: NSMenuItem!
     private var pauseWhenIdleMenuItem: NSMenuItem!
     private var muteSoundsMenuItem: NSMenuItem!
@@ -97,6 +98,11 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         pauseDuringMeetingsMenuItem.target = self
         pauseDuringMeetingsMenuItem.representedObject = SettingsKey.pauseDuringMeetings
         menu.addItem(pauseDuringMeetingsMenuItem)
+
+        ignoreMicrophoneForMeetingDetectionMenuItem = NSMenuItem(title: "Ignore Microphone for Meeting Detection", action: #selector(toggleBoolSetting(_:)), keyEquivalent: "")
+        ignoreMicrophoneForMeetingDetectionMenuItem.target = self
+        ignoreMicrophoneForMeetingDetectionMenuItem.representedObject = SettingsKey.ignoreMicrophoneForMeetingDetection
+        menu.addItem(ignoreMicrophoneForMeetingDetectionMenuItem)
 
         pauseWhenIdleMenuItem = NSMenuItem(title: "Pause When Idle", action: #selector(toggleBoolSetting(_:)), keyEquivalent: "")
         pauseWhenIdleMenuItem.target = self
@@ -195,6 +201,8 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
 
         // Toggle states
         pauseDuringMeetingsMenuItem.state = UserDefaults.standard.bool(forKey: SettingsKey.pauseDuringMeetings) ? .on : .off
+        ignoreMicrophoneForMeetingDetectionMenuItem.state = UserDefaults.standard.bool(forKey: SettingsKey.ignoreMicrophoneForMeetingDetection) ? .on : .off
+        ignoreMicrophoneForMeetingDetectionMenuItem.isEnabled = UserDefaults.standard.bool(forKey: SettingsKey.pauseDuringMeetings)
         pauseWhenIdleMenuItem.state = UserDefaults.standard.bool(forKey: SettingsKey.pauseWhenIdle) ? .on : .off
         allowSkipMenuItem.state = UserDefaults.standard.bool(forKey: SettingsKey.allowSkipBreak) ? .on : .off
         muteSoundsMenuItem.state = UserDefaults.standard.bool(forKey: SettingsKey.muteSounds) ? .on : .off

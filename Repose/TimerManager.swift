@@ -20,6 +20,7 @@ enum SettingsKey {
     static let workDurationMinutes = "workDurationMinutes"
     static let breakDurationSeconds = "breakDurationSeconds"
     static let pauseDuringMeetings = "pauseDuringMeetings"
+    static let ignoreMicrophoneForMeetingDetection = "ignoreMicrophoneForMeetingDetection"
     static let allowSkipBreak = "allowSkipBreak"
     static let muteSounds = "muteSounds"
     static let pauseWhenIdle = "pauseWhenIdle"
@@ -102,6 +103,7 @@ class TimerManager: ObservableObject {
             SettingsKey.workDurationMinutes: 20,
             SettingsKey.breakDurationSeconds: 20,
             SettingsKey.pauseDuringMeetings: true,
+            SettingsKey.ignoreMicrophoneForMeetingDetection: false,
             SettingsKey.allowSkipBreak: true,
             SettingsKey.muteSounds: false,
             SettingsKey.pauseWhenIdle: true,

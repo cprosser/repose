@@ -18,7 +18,7 @@
 
 Repose lives in your menu bar, counts down your work interval, and dims your screen when it's time to rest your eyes. When the break ends, the cycle starts again.
 
-The difference from every other break reminder: **Repose detects when you're in a meeting and stays out of your way.** No calendar integration, no app-specific setup. If your camera or mic is active, it knows you're on a call and waits.
+The difference from every other break reminder: **Repose detects when you're in a meeting and stays out of your way.** No calendar integration, no app-specific setup. If your camera or mic is active, it knows you're on a call and waits. If you keep your mic on all the time, you can tell Repose to ignore microphone activity and rely on the camera check instead.
 
 ## How it works
 
@@ -32,7 +32,7 @@ The difference from every other break reminder: **Repose detects when you're in 
   <img src="assets/menu.png" alt="Repose menu" width="280"/>
 </div>
 
-Everything is in the menu — pause, resume, restart, all settings. No separate preferences window.
+Everything is in the menu — pause, resume, restart, all settings, including an option to ignore microphone activity for meeting detection. No separate preferences window.
 
 ## Why the meeting detection actually works
 
